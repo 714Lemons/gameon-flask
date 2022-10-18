@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+
+  web:
+    build: groundstation
+    image: web
+    container_name: web
+    ports:
+      - 5000:5000
+    command: python groundstation/manage.py run -h 0.0.0.0
+    volumes:
+      - .:/usr/src/app
+    environment:
+      - FLASK_DEBUG=1
+      - APP_SETTINGS=config.DevelopmentConfig
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - redis
+
+  #angular-service:
+  #  container_name: angular-service
+  #  build: gameon-frontend
+  #  volumes: # Volume binding
+  #   - node_modules:/usr/src/app'
+  #  ports:
+  #    - '4200:4200' # Port mapping
+  #  command: >
+  #    bash -c "npm install && ng serve --host 0.0.0.0 --port 4200"
+
+  influxdb:
+    image: influxdb:latest
+    container_name: influxdb
+    ports:
+      - 8086:8086
+    volumes:
+      - influxdb2:/var/lib/influxdb2:rw
+
+  influxdb_cli:
+    links:
+      - influxdb
+    image: influxdb:latest
+    volumes:
+      - influxdb2:/var/lib/influxdb2:rw
+    entrypoint: influx setup --bucket gameon -t rexusgameon -o gameon --username=gameon --password=rexusgameon --host=http://influxdb:8086 -f
+    depends_on:
+      - influxdb
+      - redis
+      - web
+
+  redis:
+    image: redis:6-alpine
+
+volumes:
+  influxdb2:
+  node_modules:
