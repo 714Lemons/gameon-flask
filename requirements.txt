@@ -7,3 +7,4 @@ python-dotenv~=0.21.0
 flask_cors==3.0.10
 simple-websocket==0.8.1
 redis
+gevent~=21.12.0
