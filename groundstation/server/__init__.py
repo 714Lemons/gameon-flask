@@ -3,7 +3,7 @@ import os
 from flask import Flask
 from flask_socketio import SocketIO
 
-socketio = SocketIO()
+socketio = SocketIO(async_mode='threading')
 
 
 def create_app(script_info=None):
